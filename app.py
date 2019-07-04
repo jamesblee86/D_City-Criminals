@@ -1,106 +1,140 @@
-import os
+#################################################
+# Dependencies
+#################################################
 
 import pandas as pd
 import numpy as np
-
-import sqlalchemy
-from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
-
 from flask import Flask, jsonify, render_template
 from flask_pymongo import PyMongo
+import pymongo
+
+
+#################################################
+# Flask Setup
+#################################################
 
 app = Flask(__name__)
-
 
 #################################################
 # Database Setup
 #################################################
 
-app.config["MONGO_URI"] = "mongodb://localhost:27017/DenverCrime"
-db = PyMongo(app)
+conn = "mongodb://localhost:27017"
+client = pymongo.MongoClient(conn, ConnectTimeoutMS=30000)
 
-# reflect an existing database into a new model
-Base = automap_base()
-# reflect the tables
-Base.prepare(db.engine, reflect=True)
-
-# Save references to each table
-Samples_Metadata = Base.classes.sample_metadata
-Samples = Base.classes.samples
+# declare database
+# --------------------------------------------------
+db = client.DenverCrime
+coll = db.Population
+crimeColl = db.Crime
 
 
 @app.route("/")
 def index():
-    """Return the homepage."""
+    """Return the homepage """
     return render_template("index.html")
-    # need to update index.html for project
 
 
-@app.route("/names")
-def names():
-    """Return a list of sample names."""
+@app.route("/population")
+def population():
+    Denver_population = coll.find({"NAME": "Denver city"})
 
-    # Use Pandas to perform the sql query
-    stmt = db.session.query(Samples).statement
-    df = pd.read_sql_query(stmt, db.session.bind)
+    print(Denver_population)
 
-    # Return a list of the column names (sample names)
-    return jsonify(list(df.columns)[2:])
+    pop_mongo_doc = Denver_population[0]
 
-
-@app.route("/metadata/<sample>")
-def sample_metadata(sample):
-    """Return the MetaData for a given sample."""
-    sel = [
-        Samples_Metadata.sample,
-        Samples_Metadata.ETHNICITY,
-        Samples_Metadata.GENDER,
-        Samples_Metadata.AGE,
-        Samples_Metadata.LOCATION,
-        Samples_Metadata.BBTYPE,
-        Samples_Metadata.WFREQ,
-    ]
-
-    results = db.session.query(*sel).filter(Samples_Metadata.sample == sample).all()
-
-    # Create a dictionary entry for each row of metadata information
-    sample_metadata = {}
-    for result in results:
-        sample_metadata["sample"] = result[0]
-        sample_metadata["ETHNICITY"] = result[1]
-        sample_metadata["GENDER"] = result[2]
-        sample_metadata["AGE"] = result[3]
-        sample_metadata["LOCATION"] = result[4]
-        sample_metadata["BBTYPE"] = result[5]
-        sample_metadata["WFREQ"] = result[6]
-
-    print(sample_metadata)
-    return jsonify(sample_metadata)
+    return jsonify({
+        "NAME": pop_mongo_doc["NAME"],
+        "POPESTIMATE2014": pop_mongo_doc["POPESTIMATE2014"],
+        "POPESTIMATE2015": pop_mongo_doc["POPESTIMATE2015"],
+        "POPESTIMATE2016": pop_mongo_doc["POPESTIMATE2016"],
+        "POPESTIMATE2017": pop_mongo_doc["POPESTIMATE2017"],
+        "POPESTIMATE2018": pop_mongo_doc["POPESTIMATE2018"]
+    })
 
 
-@app.route("/samples/<sample>")
-def samples(sample):
-    """Return `otu_ids`, `otu_labels`,and `sample_values`."""
-    stmt = db.session.query(Samples).statement
-    df = pd.read_sql_query(stmt, db.session.bind)
+@app.route("/crimes")
+def crimes():
+    sampleCrimesMurder = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"murder",
+    })
 
-    # Filter the data based on the sample number and
-    # only keep rows with values above 1
-    sample_data = df.loc[df[sample] > 1, ["otu_id", "otu_label", sample]]
+    murder_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": murder_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": murder_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": murder_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": murder_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": murder_crimes_mongo_docs["GEO_LAT"]
 
-    # Sort by sample
-    sample_data.sort_values(by=sample, ascending=False, inplace=True)
+    } for murder_crimes_mongo_docs in sampleCrimesMurder]
 
-    # Format the data to send as json
-    data = {
-        "otu_ids": sample_data.otu_id.values.tolist(),
-        "sample_values": sample_data[sample].values.tolist(),
-        "otu_labels": sample_data.otu_label.tolist(),
-    }
-    return jsonify(data)
+    sampleCrimesTrafficAccident = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"traffic-accident",
+    })
+
+    traffic_accident_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": traffic_accident_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": traffic_accident_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": traffic_accident_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": traffic_accident_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": traffic_accident_crimes_mongo_docs["GEO_LAT"]
+
+    } for traffic_accident_crimes_mongo_docs in sampleCrimesTrafficAccident]
+
+    sampleCrimesBurglary = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"burglary",
+    })
+
+    burglary_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": burglary_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": burglary_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": burglary_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": burglary_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": burglary_crimes_mongo_docs["GEO_LAT"]
+
+    } for burglary_crimes_mongo_docs in sampleCrimesBurglary]
+
+    sampleCrimesDrugAlcohol = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"drug-alcohol",
+    })
+
+    drug_alcohol_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": drug_alcohol_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": drug_alcohol_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": drug_alcohol_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": drug_alcohol_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": drug_alcohol_crimes_mongo_docs["GEO_LAT"]
+
+    } for drug_alcohol_crimes_mongo_docs in sampleCrimesDrugAlcohol]
+
+    sampleCrimesSexualAssault = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"sexual-assault",
+    })
+
+    sexual_assault_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": sexual_assault_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": sexual_assault_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": sexual_assault_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": sexual_assault_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": sexual_assault_crimes_mongo_docs["GEO_LAT"]
+
+    } for sexual_assault_crimes_mongo_docs in sampleCrimesSexualAssault]
+
+    sampleCrimesRobbery = crimeColl.find({
+        "OFFENSE_CATEGORY_ID":"robbery",
+    })
+
+    robbery_crimes_mongo_docs = [{
+        "OFFENSE_CATEGORY_ID": robbery_crimes_mongo_docs["OFFENSE_CATEGORY_ID"],
+        "INCIDENT_ID": robbery_crimes_mongo_docs['INCIDENT_ID'],
+        "FIRST_OCCURRENCE_DATE": robbery_crimes_mongo_docs["FIRST_OCCURRENCE_DATE"],
+        "GEO_LON": robbery_crimes_mongo_docs["GEO_LON"],
+        "GEO_LAT": robbery_crimes_mongo_docs["GEO_LAT"]
+
+    } for robbery_crimes_mongo_docs in sampleCrimesRobbery]
+
+    return jsonify(murder_crimes_mongo_docs,traffic_accident_crimes_mongo_docs,burglary_crimes_mongo_docs,burglary_crimes_mongo_docs,drug_alcohol_crimes_mongo_docs,sexual_assault_crimes_mongo_docs,robbery_crimes_mongo_docs)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
