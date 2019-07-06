@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Denver Crime 2014 to Today</title>
+  <title>Denver Crime 2014 to 2018</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
@@ -14,28 +14,28 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12 jumbotron text-center">
-        <h1>Denver Crime 2014 to Today</h1>
-        <p>Use the interactive charts below to explore trend's in Denver crime over the last 5 years</p>
+        <h2>Denver Crime 2014 to 2018</h2>
+        <!-- <p>Use the interactive charts below to explore trend's in Denver crime over the last 5 years</p> -->
       </div>
     </div>
     <div class="row">
       <div class="col-md-12">
         <div class="well">
-          <h3>Selected Incidents of Crime vs. Population Growth of Denver County</h3>
-          <h5>Select Type of Crime to Further Explore Changes in Denver Crime:</h5>
-          <select id="selDataset" onchange="optionChanged(this.value)"></select>
+          <h3>Population Growth of Denver County</h3>
+          <!-- <h5>Select Type of Crime to Further Explore Changes in Denver Crime:</h5>
+          <select id="selDataset" onchange="optionChanged(this.value)"></select> -->
         </div>
-        <div class="panel panel-primary">
+        <!-- <div class="panel panel-primary">
           <div class="panel-heading">
             <h3 class="panel-title">Sample MetaData</h3>
           </div>
           <div id="sample-metadata" class="panel-body"></div>
-        </div>
+        </div> -->
       </div>
-      <div class="col-md-5">
-        <div id="pie"></div>
+      <div class="col-md-6">
+        <div id="line"></div>
       </div>
-      <div class="col-md-5">
+      <div class="col-md-6">
         <div id="gauge"></div>
       </div>
     </div>
@@ -43,29 +43,35 @@
     <div class="row">
         <div class="col-md-12">
           <div class="well">
-            <h3>Breakdown of Crime Incident Type by Year</h3>
-            <h5>Select Year to Examine the Sample:</h5>
-            <select id="selDataset" onchange="optionChanged(this.value)"></select>
+            <h3>Murders and Robbery Crimes by Year</h3>
+            <h5>Select Crime to Examine the Sample:</h5>
+            <select id="selDataset" onchange="optionChanged(this.value)">
+            <option value="murder">Murder</option>
+            <option value="robbery">Robbery</option>            
+            
+            </select>
+
+
           </div>
-          <div class="panel panel-primary">
-            <div class="panel-heading">
-              <h3 class="panel-title">Sample MetaData</h3>
-            </div>
-            <div id="sample-metadata" class="panel-body"></div>
-          </div>
+          <!-- <div class="panel panel-primary"> -->
+            <!-- <div class="panel-heading"> -->
+              <!-- <h3 class="panel-title">Sample MetaData</h3> -->
+            <!-- </div>
+            <div id="sample-metadata" class="panel-body"></div> -->
+          <!-- </div> -->
         </div>
-        <div class="col-md-5">
-          <div id="pie"></div>
+        <div class="col-md-12">
+          <div id="line2"></div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-12">
           <div id="gauge"></div>
         </div>
       </div>
       <br>
-    <div class="row">
+    <!-- <div class="row">
         <div class="col-md-12">
           <div class="well">
-            <h3>Multi-Year Comparison of Breakdown in Crime Type</h3>
+            <h3>Traffic Accidents by Year</h3>
             <h5>Select Year Sample:</h5>
             <select id="selDataset" onchange="optionChanged(this.value)"></select>
           </div>
@@ -77,26 +83,28 @@
           </div>
         </div>
         <div class="col-md-5">
-          <div id="pie"></div>
+          <div id="line3"></div>
         </div>
         <div class="col-md-5">
           <div id="gauge"></div>
         </div>
-      </div>
+      </div> -->
   </div>
   
-  <div class="row">
+  <!-- <div class="row">
     <div class="col-md-12">
       <div id="bubble"></div>
     </div>
-  </div>
+  </div> -->
   
 
   <!-- <script src="https://cdn.plot.ly/plotly-1.31.2.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-
+  <!-- <script src="{{ url_for('static', filename='js/bonus.js') }}"></script> -->
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <!-- <script src="static/app1.js"></script> -->
 </body>
 
 </html>
